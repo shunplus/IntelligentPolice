@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <attr name="circleColor" format="color" />
+        <attr name="columnColor" format="color" />
+        <attr name="columnTestColor" format="color" />
+        <attr name="columnText" format="string" />
+        <attr name="columnTextSize" format="dimension" />
+        <attr name="columnRate" format="float" />
+    <declare-styleable name="ColumnView">
+            <attr name="columnColor" />
+            <attr name="columnTestColor" />
+            <attr name="columnText" />
+            <attr name="columnTextSize" />
+            <attr name="columnRate" />
+        </declare-styleable>
+        <declare-styleable name="CircleView">
+                <attr name="circleColor" />
+
+        </declare-styleable>
+    <string-array name="loan_time">
+        <item>6个月以内（含）</item>
+        <item>6个月到1年（含）</item>
+        <item>1年到3年（含）</item>
+        <item>3年到5年（含）</item>
+        <item>5年以上</item>
+    </string-array>
+
+    <string-array name="consultaion_time">
+        <item>1小时</item>
+        <item>2小时</item>
+        <item>3小时</item>
+        <item>4小时</item>
+        <item>5小时</item>
+        <item>6小时</item>
+        <item>7小时</item>
+        <item>8小时</item>
+    </string-array>
+
+
+    <string-array name="interest_multiple">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+    <declare-styleable name="FocusImageView">
+        <attr name="focus_focusing_id" format="integer" />
+        <attr name="focus_success_id" format="integer" />
+        <attr name="focus_fail_id" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="customSwith">
+        <attr name="lineCheckedColor" format="color"></attr><!-- 中间线条颜色 -->
+        <attr name="lineUnCheckedColor" format="color"></attr><!-- 没有选中时中间线条颜色 -->
+        <attr name="lineHeight" format="dimension"></attr><!-- 中间线条高度 -->
+        <attr name="innerCheckedBroderColor" format="color" /><!-- 里面按钮边框选中颜色 -->
+        <attr name="innerUnCheckedBroderColor" format="color" /><!-- 里面按钮边框未选中状态 -->
+        <attr name="innerBroderWidth" format="dimension" /><!-- 里面按钮边框宽度 -->
+        <attr name="btnCheckedColor" format="color" /><!-- 按钮选中颜色 -->
+        <attr name="btnUnCheckedColor" format="color" /><!-- 按钮没有选中颜色 -->
+        <attr name="innerPadding" format="dimension" /><!-- 按钮没有选中颜色 -->
+    </declare-styleable>
+    <array name="fileEndingImage">
+        <item>.png</item>
+        <item>.gif</item>
+        <item>.jpg</item>
+        <item>.jpeg</item>
+        <item>.bmp</item>
+    </array>
+    <array name="fileEndingAudio">
+        <item>.mp3</item>
+        <item>.wav</item>
+        <item>.ogg</item>
+        <item>.midi</item>
+    </array>
+    <array name="fileEndingVideo">
+        <item>.mp4</item>
+        <item>.rmvb</item>
+        <item>.avi</item>
+        <item>.flv</item>
+    </array>
+    <array name="fileEndingPackage">
+        <item>.jar</item>
+        <item>.zip</item>
+        <item>.rar</item>
+        <item>.gz</item>
+        <item>.apk</item>
+        <item>.img</item>
+    </array>
+    <array name="fileEndingWebText">
+        <item>.htm</item>
+        <item>.html</item>
+        <item>.php</item>
+        <item>.jsp</item>
+    </array>
+    <array name="fileEndingText">
+        <item>.txt</item>
+        <item>.java</item>
+        <item>.c</item>
+        <item>.cpp</item>
+        <item>.py</item>
+        <item>.xml</item>
+        <item>.json</item>
+        <item>.log</item>
+    </array>
+    <array name="fileEndingWord">
+        <item>.doc</item>
+        <item>.docx</item>
+    </array>
+    <array name="fileEndingExcel">
+        <item>.xls</item>
+        <item>.xlsx</item>
+    </array>
+    <array name="fileEndingPPT">
+        <item>.ppt</item>
+        <item>.pptx</item>
+    </array>
+    <array name="fileEndingPdf">
+        <item>.pdf</item>
+    </array>
+
+</resources>

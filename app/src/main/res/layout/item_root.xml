@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llParent"
+    android:layout_width="match_parent"
+    android:layout_height="40dp">
+
+    <ImageView
+        android:layout_marginLeft="@dimen/padding_5"
+        android:id="@+id/ivNode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+        android:src="@mipmap/icon_right_arrow" />
+
+    <TextView
+        android:layout_marginRight="@dimen/padding_15"
+        android:id="@+id/ivCheck"
+        android:text="选择"
+        android:textColor="@color/light_blue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:textColor="@color/text_black"
+        android:id="@+id/tvName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/ivCheck"
+        android:layout_toRightOf="@+id/ivNode"
+        android:layout_weight="1"
+        android:padding="5dp"
+        android:textSize="15sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="1.5px"
+        android:background="@color/item_view_bg_divider">
+
+    </View>
+</RelativeLayout>
