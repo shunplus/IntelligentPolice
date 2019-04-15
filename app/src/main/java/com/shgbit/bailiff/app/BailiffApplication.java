@@ -21,5 +21,12 @@ public class BailiffApplication extends Application {
                 .withApiHost(ConstantsApi.HOST)
                 .withInterceptor(new HeaderInterceptor())
                 .configure();
+        //初始化消息事件消息总线
+//        LiveEventBus.get()
+//                .config()
+//                .supportBroadcast(this)//支持广播
+//                .lifecycleObserverAlwaysActive(true);//配置LifecycleObserver（如Activity）
+        // 接收消息的模式：true：整个生命周期（从onCreate到onDestroy）都可以实时收到消息
+        // false：激活状态（Started）可以实时收到消息，非激活状态（Stoped）无法实时收到消息，需等到Activity重新变成激活状态，方可收到消息
     }
 }

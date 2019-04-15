@@ -29,6 +29,12 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     @BindView(R.id.login_btn)
     TextView loginBtn;
     private Unbinder bind;
+//    private Observer<String> observer = new Observer<String>() {
+//        @Override
+//        public void onChanged(String s) {
+//
+//        }
+//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,13 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         setContentView(R.layout.login_activity_layout);
         bind = ButterKnife.bind(this);
         PLog.i("onCreate");
+//        LiveEventBus.get().with("login", String.class)
+//                .observe(this, new Observer<String>() {
+//                    @Override
+//                    public void onChanged(String s) {
+//
+//                    }
+//                });
     }
 
     @Override
@@ -83,11 +96,17 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         if (bind != null) {
             bind.unbind();
         }
+//        LiveEventBus.get().with("login", String.class).removeObserver(observer);
     }
 
     @OnClick(R.id.get_fayuan)
     public void getFayuan() {
         Intent intent = new Intent(this, SelectCourtActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
     }
 }

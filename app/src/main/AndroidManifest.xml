@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.shgbit.bailiff">
 
     <application
@@ -10,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:name="com.shgbit.bailiff.app.BailiffApplication"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory="liveDataBus">
         <activity
             android:name="com.shgbit.bailiff.mvp.login.SplashActivity"
             android:theme="@style/SplashTheme">
@@ -24,19 +27,19 @@
 
         <activity
             android:name="com.shgbit.bailiff.mvp.login.LoginActivity"
-            android:theme="@style/LoginTheme"></activity>
+            android:theme="@style/LoginTheme" />
 
         <!--  选择法院-->
         <activity
             android:name="com.shgbit.bailiff.mvp.court.SelectCourtActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"></activity> <!--  选择法院-->  <!--  选择法院-->
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
         <activity
-            android:name="com.shgbit.bailiff.MainActivity"
+            android:name="com.shgbit.bailiff.mvp.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden"></activity> <!--  选择法院-->
+            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     </application>
 
     <!--网络权限-->

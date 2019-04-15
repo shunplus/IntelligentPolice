@@ -11,9 +11,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.shgbit.bailiff.MainActivity;
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
+import com.shgbit.bailiff.mvp.MainActivity;
 import com.shgbit.bailiff.mvp.court.adapter.TreeViewAdapter;
 import com.shgbit.bailiff.mvp.court.casetree.BranchNode;
 import com.shgbit.bailiff.mvp.court.casetree.BranchViewBinder;
@@ -25,6 +25,7 @@ import com.shgbit.bailiff.mvp.court.casetree.bean.LayoutItem;
 import com.shgbit.bailiff.mvp.court.casetree.bean.NewCourtBean;
 import com.shgbit.bailiff.mvp.court.casetree.bean.TreeNode;
 import com.shgbit.bailiff.mvp.court.casetree.bean.TreeViewBinder;
+import com.shgbit.bailiff.rxbus.RxBus;
 import com.shgbit.bailiff.widget.TopViewLayout;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by xushun on  2019/4/12 21:00.
@@ -78,6 +80,12 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
         initAdapter();
         //获取最高院
         mvpPresenter.getNodeCourList("", null, 0);
+        RxBus.getInstance().toObservable(this, String.class).subscribe(new Consumer<String>() {
+            @Override
+            public void accept(String s) throws Exception {
+                showMessage(s);
+            }
+        });
     }
 
     private void initAdapter() {
@@ -117,6 +125,7 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
                 intent.putExtra("courtId", courtId);
                 intent.putExtra("courtName", name);
                 startActivity(intent);
+                RxBus.getInstance().postSticky(name);
 //                setResult(RESULT_OK, intent);
 //                finish();
             }
