@@ -9,11 +9,24 @@ import android.widget.Toast;
  */
 
 public class ErrorMessage {
-    public final static int SEESION_OUT = 501;//session过期
-    public final static int NET_FAIL = 502;//网络或服务器异常
-    public final static int SERVE_FAIL = 50;//服务器异常
     public int errorCode;
     public String errorMessage;
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
     public ErrorMessage() {
         this.errorCode = 0;
@@ -31,15 +44,6 @@ public class ErrorMessage {
     }
 
     public static void handleError(Context context, ErrorMessage error) {
-        switch (error.errorCode) {
-            case ErrorMessage.NET_FAIL:
-                Toast.makeText(context.getApplicationContext(), error.errorMessage, Toast.LENGTH_SHORT).show();
-                break;
-            case ErrorMessage.SERVE_FAIL:
-                Toast.makeText(context.getApplicationContext(), error.errorMessage, Toast.LENGTH_SHORT).show();
-                break;
-            case ErrorMessage.SEESION_OUT:
-                break;
-        }
+        Toast.makeText(context.getApplicationContext(), error.errorCode + "," + error.errorMessage, Toast.LENGTH_SHORT).show();
     }
 }

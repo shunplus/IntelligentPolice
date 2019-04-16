@@ -2,6 +2,9 @@
     <string name="app_name">智慧警务</string>
     <string name="no_net">网络无连接</string>
     <string name="net_error">网络或服务器异常</string>
+    <string name="not_verify">未认证</string>
+    <string name="not_committed">未授权</string>
+    <string name="data_error">数据异常</string>
 
 
 </resources>

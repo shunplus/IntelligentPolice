@@ -15,7 +15,7 @@ public class BranchNode implements LayoutItem {
     private String name;
     private String courtId;
     private String count;
-    private int courtGrade;
+    private String courtGrade;
     private String abbreviate;//简称
 
     public String getAbbreviate() {
@@ -42,11 +42,11 @@ public class BranchNode implements LayoutItem {
         this.count = count;
     }
 
-    public int getCourtGrade() {
+    public String getCourtGrade() {
         return courtGrade;
     }
 
-    public void setCourtGrade(int courtGrade) {
+    public void setCourtGrade(String courtGrade) {
         this.courtGrade = courtGrade;
     }
 

@@ -6,6 +6,7 @@ import java.util.WeakHashMap;
 import io.reactivex.Observable;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.FieldMap;
@@ -44,7 +45,7 @@ public interface RxRestService {
 
     @Streaming
     @GET
-    Observable<String> download(@Url String url, @QueryMap Map<String, Object> parms);
+    Observable<ResponseBody> download(@Url String url, @QueryMap Map<String, Object> parms);
 
     @Multipart
     @GET

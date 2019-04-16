@@ -197,7 +197,7 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
      */
     public <T extends BaseBean> void post(final String url, final WeakHashMap<String, Object> params, final Class<T> t, final BaseBeanObserver<T> baseBeanObserver) {
         if (!NetStateUtil.checkEnable(LawUtils.getApplicationContext())) {
-            ErrorMessage error = new ErrorMessage(ErrorMessage.NET_FAIL, LawUtils.getString(R.string.no_net));
+            ErrorMessage error = new ErrorMessage(RetrofitUtils.NET_FAIL, LawUtils.getString(R.string.no_net));
             baseBeanObserver.onError(error);
             return;
         }

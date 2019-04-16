@@ -18,6 +18,6 @@ public class ConstantsApi {
     /**
      * 分层获取法院列表iexe/a/sys/office/getCourtList
      */
-    public static String GET_COURTLIST = "/iexe/a/sys/office/getCourtList";
+    public static String GET_COURTLIST = "/icontrol/court/getCourtList";
 
 }

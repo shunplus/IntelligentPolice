@@ -16,6 +16,7 @@ public class LeafNode implements LayoutItem {
     private String courtId;
     private String count;
     private String abbreviate;//简称
+    private String courtGrade;
 
     public String getAbbreviate() {
         return abbreviate;
@@ -41,15 +42,13 @@ public class LeafNode implements LayoutItem {
         this.count = count;
     }
 
-    public int getCourtGrade() {
+    public String getCourtGrade() {
         return courtGrade;
     }
 
-    public void setCourtGrade(int courtGrade) {
+    public void setCourtGrade(String courtGrade) {
         this.courtGrade = courtGrade;
     }
-
-    private int courtGrade;
 
     public LeafNode(String name) {
         this.name = name;

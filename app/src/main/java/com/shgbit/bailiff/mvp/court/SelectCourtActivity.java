@@ -79,7 +79,7 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
         topView.setFinishActivity(this);
         initAdapter();
         //获取最高院
-        mvpPresenter.getNodeCourList("", null, 0);
+        mvpPresenter.getNodeCourList("0", null, 0);
         RxBus.getInstance().toObservable(this, String.class).subscribe(new Consumer<String>() {
             @Override
             public void accept(String s) throws Exception {
@@ -146,7 +146,7 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
 
     private void addNewNode(final TreeNode treeNode) {
         String courtId = "";
-        int courtGrade = -1;
+        String courtGrade = "";
         LayoutItem item = treeNode.getValue();
         List<TreeNode> list = treeNode.getChildNodes();
         boolean hasLeaf = false;
@@ -179,15 +179,15 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
         }
         if (!hasLeaf) {
             switch (courtGrade) {
-                case 1:
+                case "1":
                     //点击高院列表后重新获取
+                    mvpPresenter.getNodeCourList(courtId, treeNode, 1);
+                    break;
+                case "2":
+                    //点击中院列表后重新获取
                     mvpPresenter.getNodeCourList(courtId, treeNode, 2);
                     break;
-                case 2:
-                    //点击中院列表后重新获取
-                    mvpPresenter.getNodeCourList(courtId, treeNode, 3);
-                    break;
-                case 3:
+                case "3":
                     break;
             }
         } else {
@@ -220,48 +220,47 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
         } else {
             ivParentNode.setRotation(90);
             isExpande = true;
-            mvpPresenter.getNodeCourList(id, null, 1);
+            mvpPresenter.getNodeCourList("0", null, 0);
         }
     }
 
     @Override
-    public void setCourtList(List<NewCourtBean.DataBean> dataBeans, TreeNode treeNode, int type) {
+    public void setCourtList(NewCourtBean.EntityBean entityBean, TreeNode treeNode, int type) {
         switch (type) {
             case 0:
-                if (dataBeans != null & dataBeans.size() > 0) {
-                    courtName = dataBeans.get(0).getName();
+                if (entityBean != null) {
+                    courtName = entityBean.getName();
                     tvParentName.setText(courtName);
-                    id = dataBeans.get(0).getId();
-                    ivParentNode.setRotation(90);
-                    isExpande = true;
-                    mvpPresenter.getNodeCourList(id, null, 1);
+                    id = entityBean.getId();
+                    if (entityBean.getChildren() != null && entityBean.getChildren().size() > 0) {
+                        ivParentNode.setRotation(90);
+                        isExpande = true;
+                        list.clear();
+                        for (NewCourtBean.EntityBean.ChildrenBean bean : entityBean.getChildren()) {
+                            RootNode rootNode = new RootNode(bean.getName());
+                            rootNode.setCourtGrade(bean.getGrade());
+                            rootNode.setCourtId(bean.getId());
+                            TreeNode<RootNode> rootNodeTreeNode = new TreeNode<>(rootNode);
+                            list.add(rootNodeTreeNode);
+                            adapter.notifyData(list);
+                        }
+                    }
                 }
                 break;
             case 1:
-                list.clear();
-                for (NewCourtBean.DataBean bean : dataBeans) {
-                    RootNode rootNode = new RootNode(bean.getName());
-                    rootNode.setCourtGrade(1);
-                    rootNode.setCourtId(bean.getId());
-                    TreeNode<RootNode> rootNodeTreeNode = new TreeNode<>(rootNode);
-                    list.add(rootNodeTreeNode);
-                    adapter.notifyData(list);
-                }
-                break;
-            case 2:
-                for (NewCourtBean.DataBean beans : dataBeans) {
+                for (NewCourtBean.EntityBean.ChildrenBean beans : entityBean.getChildren()) {
                     BranchNode branchNode = new BranchNode(beans.getName());
-                    branchNode.setCourtGrade(2);
+                    branchNode.setCourtGrade(beans.getGrade());
                     branchNode.setCourtId(beans.getId());
                     TreeNode<BranchNode> branchNodeTreeNode = new TreeNode<>(branchNode);
                     treeNode.addChild(branchNodeTreeNode);
                 }
                 adapter.lastToggleClickToggle();
                 break;
-            case 3:
-                for (NewCourtBean.DataBean beans : dataBeans) {
+            case 2:
+                for (NewCourtBean.EntityBean.ChildrenBean beans : entityBean.getChildren()) {
                     LeafNode leafNode = new LeafNode(beans.getName());
-                    leafNode.setCourtGrade(3);
+                    leafNode.setCourtGrade(beans.getGrade());
                     leafNode.setCourtId(beans.getId());
                     TreeNode<LeafNode> leafNodeTreeNode = new TreeNode<>(leafNode);
                     treeNode.addChild(leafNodeTreeNode);

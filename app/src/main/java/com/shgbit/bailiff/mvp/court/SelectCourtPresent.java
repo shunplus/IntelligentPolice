@@ -38,7 +38,7 @@ public class SelectCourtPresent extends BasePresenterImpl<CourtContact.OnCoutrVi
             public void onNext(NewCourtBean newCourtBean) {
                 if (view != null) {
                     view.dismissLoadingDialog();
-                    view.setCourtList(newCourtBean.getData(), treeNode, type);
+                    view.setCourtList(newCourtBean.getEntity(), treeNode, type);
                 }
             }
 

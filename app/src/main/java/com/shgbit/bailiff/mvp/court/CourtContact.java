@@ -5,8 +5,6 @@ import com.shgbit.bailiff.base.BaseView;
 import com.shgbit.bailiff.mvp.court.casetree.bean.NewCourtBean;
 import com.shgbit.bailiff.mvp.court.casetree.bean.TreeNode;
 
-import java.util.List;
-
 /**
  * Created by xushun on 2019/4/12.
  * Des:
@@ -15,7 +13,7 @@ import java.util.List;
 public interface CourtContact {
 
     interface OnCoutrView extends BaseView {
-        void setCourtList(List<NewCourtBean.DataBean> dataBeans, TreeNode treeNode, int type);
+        void setCourtList(NewCourtBean.EntityBean entityBean, TreeNode treeNode, int type);
     }
 
     interface OnCourtPresent extends BasePresenter {

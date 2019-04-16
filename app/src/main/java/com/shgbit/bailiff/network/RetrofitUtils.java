@@ -1,6 +1,7 @@
 package com.shgbit.bailiff.network;
 
-import com.google.gson.Gson;
+import android.text.TextUtils;
+
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException;
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.BaseBeanObserver;
@@ -27,9 +28,14 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class RetrofitUtils {
-
+    public final static int SEESION_OUT = 501;//session过期
+    public final static int NET_FAIL = 502;//网络或服务器异常
+    public final static int SERVE_FAIL = 500;//处理失败
+    public final static int NOT_VERIFY = 401;//请求未认证，跳转登录页
+    public final static int NOT_COMMITTED = 406;// 请求未授权，跳转未授权提示页
+    public final static int SERVE_OK = 200;//响应成功
+    public final static int DATA_ERROR = 202;//数据异常
     private static RetrofitUtils instance;
-    private static Gson gson;
 
     public static RetrofitUtils getInstance() {
         return RetrofitUtilsHolder.instance;
@@ -60,48 +66,48 @@ public class RetrofitUtils {
                     @Override
                     public void onNext(String s) {
                         try {
-                            if (gson == null)
-                                gson = new Gson();
-                            T bean = ParseJsonUtils.parseByGson(s, t);
-                            /**
-                             * 此处先判断是否是登录超时，如超时再次登录获取session
-                             */
-                            if (bean != null && bean.iserror && bean.errorCode.equals("timeout")) {
-                                //TODO:
-                                postLogin(params, new BaseBeanObserver<BaseBean>() {
-                                    @Override
-                                    public void onSubscribe(Disposable d) {
-                                        baseBeanObserver.onSubscribe(d);
+                            JSONObject jsonObject = new JSONObject(s);
+                            int code = jsonObject.getInt("code");
+                            boolean iserror = jsonObject.getBoolean("iserror");
+                            String message = jsonObject.getString("message");
+                            ErrorMessage error = new ErrorMessage();
+                            switch (code) {
+                                case SERVE_OK:
+                                    if (iserror) {
+                                        error.errorCode = code;
+                                        error.errorMessage = TextUtils.isEmpty(message) ? LawUtils.getString(R.string.data_error) : message;
+                                    } else {
+                                        T bean = ParseJsonUtils.getInstance().parseByGson(s, t);
+                                        if (bean != null) {
+                                            baseBeanObserver.onNext(bean);
+                                        } else {
+                                            error.errorMessage = TextUtils.isEmpty(message) ? LawUtils.getString(R.string.data_error) : message;
+                                            error.errorCode = code;
+                                            baseBeanObserver.onError(error);
+                                        }
                                     }
-
-                                    @Override
-                                    public void onNext(BaseBean baseBean) {
-                                        post(url, params, t, baseBeanObserver);
-                                    }
-
-                                    @Override
-                                    public void onError(ErrorMessage error) {
-                                        baseBeanObserver.onError(error);
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-
-                                    }
-                                });
-                                return;
-                            }
-                            if (bean == null || bean.iserror) {
-                                ErrorMessage error = new ErrorMessage(ErrorMessage.SERVE_FAIL, LawUtils.getString(R.string.net_error));
-                                baseBeanObserver.onError(error);
-                            } else {
-                                baseBeanObserver.onNext(bean);
+                                    break;
+                                case NOT_VERIFY:
+                                    error.errorCode = code;
+                                    error.errorMessage = LawUtils.getString(R.string.not_verify);
+                                    baseBeanObserver.onError(error);
+                                    break;
+                                case NOT_COMMITTED:
+                                    error.errorCode = code;
+                                    error.errorMessage = LawUtils.getString(R.string.not_committed);
+                                    baseBeanObserver.onError(error);
+                                    break;
+                                case SERVE_FAIL:
+                                    error.errorCode = code;
+                                    error.errorMessage = LawUtils.getString(R.string.net_error);
+                                    baseBeanObserver.onError(error);
+                                    break;
                             }
 
                         } catch (Exception e) {
                             try {
-                                BaseBean baseBean = ParseJsonUtils.parseByGson(s, BaseBean.class);
-                                ErrorMessage error = new ErrorMessage(ErrorMessage.SERVE_FAIL, baseBean.message);
+                                BaseBean baseBean = ParseJsonUtils.getInstance().parseByGson(s, BaseBean.class);
+                                ErrorMessage error = new ErrorMessage(DATA_ERROR, LawUtils.getString(R.string.data_error));
                                 baseBeanObserver.onError(error);
                             } catch (Exception e1) {
                             }
@@ -111,8 +117,20 @@ public class RetrofitUtils {
 
                     @Override
                     public void onError(Throwable e) {
-                        ErrorMessage error = new ErrorMessage(ErrorMessage.NET_FAIL, LawUtils.getString(R.string.net_error));
-                        baseBeanObserver.onError(error);
+                        if (e instanceof HttpException) {
+                            //获取对应statusCode和Message
+                            HttpException exception = (HttpException) e;
+                            String message = exception.response().message();
+                            int code = exception.response().code();
+                            ErrorMessage error = new ErrorMessage(code, message);
+                            baseBeanObserver.onError(error);
+
+                        } else if (e instanceof SSLHandshakeException) {
+                            //接下来就是各种异常类型判断...
+                        } else {
+                            ErrorMessage error = new ErrorMessage(NET_FAIL, LawUtils.getString(R.string.net_error));
+                            baseBeanObserver.onError(error);
+                        }
                     }
 
                     @Override
@@ -122,9 +140,9 @@ public class RetrofitUtils {
                 });
     }
 
-    public void postLogin(WeakHashMap<String, Object> params, final BaseBeanObserver<BaseBean> baseBeanObserver) {
+    public <T extends BaseBean> void postLogin(WeakHashMap<String, Object> params, final Class<T> t, final BaseBeanObserver<T> baseBeanObserver) {
         if (!NetStateUtil.checkEnable(LawUtils.getApplicationContext())) {
-            ErrorMessage error = new ErrorMessage(ErrorMessage.NET_FAIL, LawUtils.getString(R.string.no_net));
+            ErrorMessage error = new ErrorMessage(NET_FAIL, LawUtils.getString(R.string.no_net));
             baseBeanObserver.onError(error);
             return;
         }
@@ -141,36 +159,54 @@ public class RetrofitUtils {
 
                     @Override
                     public void onNext(String s) {
-                        boolean iserror = false;
-                        String message = null;
                         try {
                             JSONObject jsonObject = new JSONObject(s);
-                            iserror = jsonObject.getBoolean("iserror");
-                            message = jsonObject.getString("message");
-                            if (iserror) {
-                                ErrorMessage error = new ErrorMessage(ErrorMessage.SERVE_FAIL, message);
-                                baseBeanObserver.onError(error);
-                            } else {
-                                if (gson == null)
-                                    gson = new Gson();
-                                try {
-                                    BaseBean bean = ParseJsonUtils.parseByGson(s, BaseBean.class);
-                                    if (bean == null || bean.iserror) {
-                                        ErrorMessage error = new ErrorMessage(ErrorMessage.SERVE_FAIL, bean.message);
-                                        baseBeanObserver.onError(error);
+                            int code = jsonObject.getInt("code");
+                            boolean iserror = jsonObject.getBoolean("iserror");
+                            String message = jsonObject.getString("message");
+                            ErrorMessage error = new ErrorMessage();
+                            switch (code) {
+                                case SERVE_OK:
+                                    if (iserror) {
+                                        error.errorCode = code;
+                                        error.errorMessage = TextUtils.isEmpty(message) ? LawUtils.getString(R.string.data_error) : message;
                                     } else {
-                                        baseBeanObserver.onNext(bean);
+                                        T bean = ParseJsonUtils.getInstance().parseByGson(s, t);
+                                        if (bean != null) {
+                                            baseBeanObserver.onNext(bean);
+                                        } else {
+                                            error.errorMessage = TextUtils.isEmpty(message) ? LawUtils.getString(R.string.data_error) : message;
+                                            error.errorCode = code;
+                                            baseBeanObserver.onError(error);
+                                        }
                                     }
-                                } catch (Exception e) {
-                                    ErrorMessage error = new ErrorMessage(ErrorMessage.NET_FAIL, LawUtils.getString(R.string.net_error));
+                                    break;
+                                case NOT_VERIFY:
+                                    error.errorCode = code;
+                                    error.errorMessage = LawUtils.getString(R.string.not_verify);
                                     baseBeanObserver.onError(error);
-                                    e.printStackTrace();
-                                }
+                                    break;
+                                case NOT_COMMITTED:
+                                    error.errorCode = code;
+                                    error.errorMessage = LawUtils.getString(R.string.not_committed);
+                                    baseBeanObserver.onError(error);
+                                    break;
+                                case SERVE_FAIL:
+                                    error.errorCode = code;
+                                    error.errorMessage = LawUtils.getString(R.string.net_error);
+                                    baseBeanObserver.onError(error);
+                                    break;
                             }
+
                         } catch (Exception e) {
+                            try {
+                                BaseBean baseBean = ParseJsonUtils.getInstance().parseByGson(s, BaseBean.class);
+                                ErrorMessage error = new ErrorMessage(DATA_ERROR, LawUtils.getString(R.string.data_error));
+                                baseBeanObserver.onError(error);
+                            } catch (Exception e1) {
+                            }
                             e.printStackTrace();
                         }
-
                     }
 
                     @Override
@@ -186,7 +222,7 @@ public class RetrofitUtils {
                         } else if (e instanceof SSLHandshakeException) {
                             //接下来就是各种异常类型判断...
                         } else {
-                            ErrorMessage error = new ErrorMessage(ErrorMessage.NET_FAIL, LawUtils.getString(R.string.net_error));
+                            ErrorMessage error = new ErrorMessage(NET_FAIL, LawUtils.getString(R.string.net_error));
                             baseBeanObserver.onError(error);
                         }
                     }
