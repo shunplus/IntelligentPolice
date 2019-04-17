@@ -13,10 +13,10 @@ public class ConstantsApi {
     /**
      * 登录
      */
-    public static final String LOGIN_USER = "/iexe/a/login";
+    public static final String LOGIN_USER = "/icontrol/login";
 
     /**
-     * 分层获取法院列表iexe/a/sys/office/getCourtList
+     * 分层获取法院列表
      */
     public static String GET_COURTLIST = "/icontrol/court/getCourtList";
 

@@ -18,6 +18,9 @@ public class Constants {
     public final static String CROP = "crop";
     public final static String DEVICE = "device";
     public final static String UPW = "upw";
-
+    /**
+     * 选择法院code
+     */
+    public final static int COURT_SELSET_CODE = 10;
 
 }

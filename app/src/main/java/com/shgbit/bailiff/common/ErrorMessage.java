@@ -44,6 +44,10 @@ public class ErrorMessage {
     }
 
     public static void handleError(Context context, ErrorMessage error) {
-        Toast.makeText(context.getApplicationContext(), error.errorCode + "," + error.errorMessage, Toast.LENGTH_SHORT).show();
+        if (error.errorCode == 501 || error.errorCode == 502) {
+            Toast.makeText(context.getApplicationContext(), error.errorMessage, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context.getApplicationContext(), error.errorCode + "," + error.errorMessage, Toast.LENGTH_SHORT).show();
+        }
     }
 }

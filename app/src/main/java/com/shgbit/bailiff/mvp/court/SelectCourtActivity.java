@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
-import com.shgbit.bailiff.mvp.MainActivity;
 import com.shgbit.bailiff.mvp.court.adapter.TreeViewAdapter;
 import com.shgbit.bailiff.mvp.court.casetree.BranchNode;
 import com.shgbit.bailiff.mvp.court.casetree.BranchViewBinder;
@@ -121,13 +120,11 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
                     name = ((LeafNode) item).getName();
                     courtId = ((LeafNode) item).getCourtId();
                 }
-                Intent intent = new Intent(SelectCourtActivity.this, MainActivity.class);
+                Intent intent = new Intent();
                 intent.putExtra("courtId", courtId);
                 intent.putExtra("courtName", name);
-                startActivity(intent);
-                RxBus.getInstance().postSticky(name);
-//                setResult(RESULT_OK, intent);
-//                finish();
+                setResult(RESULT_OK, intent);
+                finish();
             }
 
             @Override
@@ -271,4 +268,13 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
     }
 
 
+    @OnClick(R.id.ivCheck)
+    public void isCheck() {
+        Intent intent = new Intent();
+        intent.putExtra("courtId", id);
+        intent.putExtra("courtName", courtName);
+        setResult(RESULT_OK, intent);
+        finish();
+
+    }
 }

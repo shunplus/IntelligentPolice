@@ -28,8 +28,8 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class RetrofitUtils {
-    public final static int SEESION_OUT = 501;//session过期
-    public final static int NET_FAIL = 502;//网络或服务器异常
+    public final static int NET_FAIL = 501;//网络无连接
+    public final static int NET_OR_SFAIL = 502;//网络或服务器异常
     public final static int SERVE_FAIL = 500;//处理失败
     public final static int NOT_VERIFY = 401;//请求未认证，跳转登录页
     public final static int NOT_COMMITTED = 406;// 请求未授权，跳转未授权提示页
@@ -65,6 +65,7 @@ public class RetrofitUtils {
 
                     @Override
                     public void onNext(String s) {
+                        String post = url;//同于打断点时确定接口
                         try {
                             JSONObject jsonObject = new JSONObject(s);
                             int code = jsonObject.getInt("code");
@@ -89,12 +90,14 @@ public class RetrofitUtils {
                                     break;
                                 case NOT_VERIFY:
                                     error.errorCode = code;
-                                    error.errorMessage = LawUtils.getString(R.string.not_verify);
+//                                    error.errorMessage = LawUtils.getString(R.string.not_verify);
+                                    error.errorMessage = jsonObject.getString("entity");
                                     baseBeanObserver.onError(error);
                                     break;
                                 case NOT_COMMITTED:
                                     error.errorCode = code;
-                                    error.errorMessage = LawUtils.getString(R.string.not_committed);
+//                                    error.errorMessage = LawUtils.getString(R.string.not_committed);
+                                    error.errorMessage = jsonObject.getString("entity");
                                     baseBeanObserver.onError(error);
                                     break;
                                 case SERVE_FAIL:
@@ -128,7 +131,7 @@ public class RetrofitUtils {
                         } else if (e instanceof SSLHandshakeException) {
                             //接下来就是各种异常类型判断...
                         } else {
-                            ErrorMessage error = new ErrorMessage(NET_FAIL, LawUtils.getString(R.string.net_error));
+                            ErrorMessage error = new ErrorMessage(NET_OR_SFAIL, LawUtils.getString(R.string.net_error));
                             baseBeanObserver.onError(error);
                         }
                     }
@@ -169,7 +172,7 @@ public class RetrofitUtils {
                                 case SERVE_OK:
                                     if (iserror) {
                                         error.errorCode = code;
-                                        error.errorMessage = TextUtils.isEmpty(message) ? LawUtils.getString(R.string.data_error) : message;
+                                        error.errorMessage = jsonObject.getString("entity");
                                     } else {
                                         T bean = ParseJsonUtils.getInstance().parseByGson(s, t);
                                         if (bean != null) {
@@ -183,12 +186,13 @@ public class RetrofitUtils {
                                     break;
                                 case NOT_VERIFY:
                                     error.errorCode = code;
-                                    error.errorMessage = LawUtils.getString(R.string.not_verify);
+                                    error.errorMessage = jsonObject.getString("entity");
                                     baseBeanObserver.onError(error);
                                     break;
                                 case NOT_COMMITTED:
                                     error.errorCode = code;
-                                    error.errorMessage = LawUtils.getString(R.string.not_committed);
+//                                    error.errorMessage = LawUtils.getString(R.string.not_committed);
+                                    error.errorMessage = jsonObject.getString("entity");
                                     baseBeanObserver.onError(error);
                                     break;
                                 case SERVE_FAIL:
@@ -222,7 +226,7 @@ public class RetrofitUtils {
                         } else if (e instanceof SSLHandshakeException) {
                             //接下来就是各种异常类型判断...
                         } else {
-                            ErrorMessage error = new ErrorMessage(NET_FAIL, LawUtils.getString(R.string.net_error));
+                            ErrorMessage error = new ErrorMessage(NET_OR_SFAIL, LawUtils.getString(R.string.net_error));
                             baseBeanObserver.onError(error);
                         }
                     }
