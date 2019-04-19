@@ -5,18 +5,18 @@ package com.shgbit.bailiff.bean;
  */
 
 public class BaseBean {
-    private String webSessionId;
+    //    private String webSessionId;
     private String errorCode;
     private boolean iserror;
     private String message;
 
-    public String getWebSessionId() {
-        return webSessionId;
-    }
+//    public String getWebSessionId() {
+//        return webSessionId;
+//    }
 
-    public void setWebSessionId(String webSessionId) {
-        this.webSessionId = webSessionId;
-    }
+//    public void setWebSessionId(String webSessionId) {
+//        this.webSessionId = webSessionId;
+//    }
 
     public String getErrorCode() {
         return errorCode;

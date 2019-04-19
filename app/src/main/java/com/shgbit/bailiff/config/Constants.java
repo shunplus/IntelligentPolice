@@ -1,5 +1,7 @@
 package com.shgbit.bailiff.config;
 
+import android.os.Environment;
+
 /**
  * Created by xushun on 2018/9/14.
  * 配置静态常量
@@ -22,5 +24,11 @@ public class Constants {
      * 选择法院code
      */
     public final static int COURT_SELSET_CODE = 10;
+
+    /**
+     * 保存目录
+     */
+    public final static String APP_ROOT_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + LawUtils.getApplicationContext().getPackageName();
+    public final static String DOWNLOAD_DIR = "/downlaod/";
 
 }

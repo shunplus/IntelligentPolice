@@ -1,7 +1,10 @@
 package com.shgbit.bailiff.config;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +23,7 @@ import com.shgbit.bailiff.util.PLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -236,5 +240,47 @@ public final class LawUtils {
      */
     public static ThreadPoolManager getThreadPoolManager() {
         return getConfiguration(ConfigKeys.THREAD);
+    }
+
+    /**
+     * 用来判断服务是否运行.
+     *
+     * @param className 判断的服务名字
+     * @return true 在运行 false 不在运行
+     */
+    public static boolean isServiceRunning(Context context, String className) {
+
+        boolean isRunning = false;
+        ActivityManager activityManager = (ActivityManager) context
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> serviceList = activityManager
+                .getRunningServices(Integer.MAX_VALUE);
+        if (!(serviceList.size() > 0)) {
+            return false;
+        }
+        for (int i = 0; i < serviceList.size(); i++) {
+            if (serviceList.get(i).service.getClassName().equals(className) == true) {
+                isRunning = true;
+                break;
+            }
+        }
+        return isRunning;
+    }
+
+    /**
+     * 获取当前的versioncode
+     *
+     * @param context
+     * @return
+     */
+    public static int getVersionCode(Context context) {
+        PackageInfo pi = null;
+        try {
+            PackageManager pm = context.getPackageManager();//context为当前Activity上下文
+            pi = pm.getPackageInfo(context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return pi.versionCode;
     }
 }

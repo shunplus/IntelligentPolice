@@ -132,7 +132,7 @@ public class RxBus {
     }
 
     /**
-     * 移除所有的Sticky事件
+     * 移除所有的Sticky事件,在主Activity
      */
     public void removeAllStickyEvents() {
         synchronized (mStickyEventMap) {

@@ -30,6 +30,7 @@ public class HeaderInterceptor extends BaseInterceptor {
             if (!TextUtils.isEmpty(s1)) {
                 String cookie = s1.split(";")[0];
                 SpUtils.putString(Constants.COOKIE, cookie);//保存cookie
+                PLog.i(cookie);
             }
         }
         return response;
@@ -50,7 +51,6 @@ public class HeaderInterceptor extends BaseInterceptor {
                 requestBuilder.header("Cookie", cookie);
             }
         }
-
         return requestBuilder.build();
 
     }

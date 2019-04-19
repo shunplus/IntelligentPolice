@@ -65,10 +65,11 @@ public class RetrofitUtils {
 
                     @Override
                     public void onNext(String s) {
-                        String post = url;//同于打断点时确定接口
+                        String post = ConstantsApi.HOST + url;//同于打断点时确定接口
+                        WeakHashMap<String, Object> parms = params;
                         try {
                             JSONObject jsonObject = new JSONObject(s);
-                            int code = jsonObject.getInt("code");
+                            int code = SERVE_OK /*jsonObject.getInt("code")*/;
                             boolean iserror = jsonObject.getBoolean("iserror");
                             String message = jsonObject.getString("message");
                             ErrorMessage error = new ErrorMessage();
@@ -120,6 +121,8 @@ public class RetrofitUtils {
 
                     @Override
                     public void onError(Throwable e) {
+                        String postUrl = ConstantsApi.HOST + url;
+                        WeakHashMap<String, Object> parms = params;
                         if (e instanceof HttpException) {
                             //获取对应statusCode和Message
                             HttpException exception = (HttpException) e;
@@ -143,7 +146,7 @@ public class RetrofitUtils {
                 });
     }
 
-    public <T extends BaseBean> void postLogin(WeakHashMap<String, Object> params, final Class<T> t, final BaseBeanObserver<T> baseBeanObserver) {
+    public <T extends BaseBean> void postLogin(final WeakHashMap<String, Object> params, final Class<T> t, final BaseBeanObserver<T> baseBeanObserver) {
         if (!NetStateUtil.checkEnable(LawUtils.getApplicationContext())) {
             ErrorMessage error = new ErrorMessage(NET_FAIL, LawUtils.getString(R.string.no_net));
             baseBeanObserver.onError(error);
@@ -162,6 +165,8 @@ public class RetrofitUtils {
 
                     @Override
                     public void onNext(String s) {
+                        String postUrl = ConstantsApi.HOST + ConstantsApi.LOGIN_USER;
+                        WeakHashMap<String, Object> parms = params;
                         try {
                             JSONObject jsonObject = new JSONObject(s);
                             int code = jsonObject.getInt("code");
@@ -215,6 +220,8 @@ public class RetrofitUtils {
 
                     @Override
                     public void onError(Throwable e) {
+                        String postUrl = ConstantsApi.HOST + ConstantsApi.LOGIN_USER;
+                        WeakHashMap<String, Object> parms = params;
                         if (e instanceof HttpException) {
                             //获取对应statusCode和Message
                             HttpException exception = (HttpException) e;

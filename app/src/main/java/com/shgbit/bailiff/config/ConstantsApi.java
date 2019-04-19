@@ -13,11 +13,17 @@ public class ConstantsApi {
     /**
      * 登录
      */
-    public static final String LOGIN_USER = "/icontrol/login";
+//    public static final String LOGIN_USER = "/icontrol/login";
+    public static final String LOGIN_USER = "iexe/a/login";
 
     /**
      * 分层获取法院列表
      */
     public static String GET_COURTLIST = "/icontrol/court/getCourtList";
+
+    /**
+     * app更新
+     */
+    public static String APP_CHECK_UPDATE = "iexe/SystemContext/appVersionCheck.do";
 
 }

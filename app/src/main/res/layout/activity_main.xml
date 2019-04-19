@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/top_view_height"
         app:topview_left="@mipmap/icon_back"
-        app:topview_title="sss" />
+        app:topview_title="主页面" />
 
     <TextView
         android:id="@+id/test"

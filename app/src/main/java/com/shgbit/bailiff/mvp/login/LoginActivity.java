@@ -12,6 +12,7 @@ import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
 import com.shgbit.bailiff.common.ErrorMessage;
 import com.shgbit.bailiff.config.Constants;
+import com.shgbit.bailiff.mvp.MainActivity;
 import com.shgbit.bailiff.mvp.court.SelectCourtActivity;
 import com.shgbit.bailiff.util.PLog;
 
@@ -90,6 +91,9 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         params.put("device", device);
         params.put("upw", upw);
         mvpPresenter.getData(params);
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     @Override

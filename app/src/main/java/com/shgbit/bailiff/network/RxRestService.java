@@ -12,6 +12,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -50,4 +51,8 @@ public interface RxRestService {
     @Multipart
     @GET
     Observable<String> upload(@Url String url, @Part MultipartBody.Part file);
+
+    @Streaming
+    @GET
+    Observable<ResponseBody> executeDownload(@Header("Range") String range, @Url() String url);
 }
