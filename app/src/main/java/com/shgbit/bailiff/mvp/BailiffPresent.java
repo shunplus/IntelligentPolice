@@ -16,8 +16,8 @@ import io.reactivex.disposables.Disposable;
  * Email:shunplus@163.com
  */
 
-public class MainPresent extends BasePresenterImpl<MainContact.OnMianView> implements MainContact.OnMianPresent {
-    public MainPresent(MainContact.OnMianView view) {
+public class BailiffPresent extends BasePresenterImpl<BailiffContact.OnMianView> implements BailiffContact.OnMianPresent {
+    public BailiffPresent(BailiffContact.OnMianView view) {
         super(view);
     }
 

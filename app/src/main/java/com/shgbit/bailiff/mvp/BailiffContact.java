@@ -10,7 +10,7 @@ import com.shgbit.bailiff.bean.UpdateMessageBean;
  * Email:shunplus@163.com
  */
 
-public interface MainContact {
+public interface BailiffContact {
 
     interface OnMianView extends BaseView {
         void setUpdate(UpdateMessageBean.DataBean dataBean);

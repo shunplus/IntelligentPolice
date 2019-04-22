@@ -12,7 +12,7 @@ import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
 import com.shgbit.bailiff.common.ErrorMessage;
 import com.shgbit.bailiff.config.Constants;
-import com.shgbit.bailiff.mvp.MainActivity;
+import com.shgbit.bailiff.mvp.BailiffActivity;
 import com.shgbit.bailiff.mvp.court.SelectCourtActivity;
 import com.shgbit.bailiff.util.PLog;
 
@@ -92,13 +92,13 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         params.put("upw", upw);
         mvpPresenter.getData(params);
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, BailiffActivity.class);
         startActivity(intent);
     }
 
     @Override
     public void onSucess(String data) {
-        //TODO: save passWord； start  MainActivity
+        //TODO: save passWord； start  BailiffActivity
         showMessage(data);
 //        Toast.makeText(context, "登录成功", Toast.LENGTH_SHORT).show();
 //        LawUtils.getPreference().saveString(Constants.USER_CODE, userCode);

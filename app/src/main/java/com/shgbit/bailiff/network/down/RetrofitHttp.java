@@ -4,18 +4,22 @@ import android.util.Log;
 
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import com.shgbit.bailiff.config.Constants;
+import com.shgbit.bailiff.config.ConstantsApi;
 import com.shgbit.bailiff.network.RxRestService;
+import com.shgbit.bailiff.util.FileUtil;
 import com.shgbit.bailiff.util.SpUtils;
 
 import org.reactivestreams.Subscription;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import retrofit2.Retrofit;
@@ -23,10 +27,11 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 
 /**
- * 创建时间：2018/3/7
- * 编写人：czw
- * 功能描述 ：
+ * Created by xushun on 2019/4/19.
+ * Des:
+ * Email:shunplus@163.com
  */
+
 public class RetrofitHttp {
 
     private static final int DEFAULT_TIMEOUT = 10;
@@ -34,7 +39,7 @@ public class RetrofitHttp {
     private RxRestService apiService;
     private OkHttpClient okHttpClient;
     private Subscription subscription;
-
+    private DownloadInfo info;
     // 清除线程需要用到的
     private Disposable disposable;
 
@@ -59,7 +64,7 @@ public class RetrofitHttp {
                 .client(okHttpClient)
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .baseUrl("http://dldir1.qq.com")
+                .baseUrl(ConstantsApi.HOST)
                 .build();
         apiService = retrofit.create(RxRestService.class);
     }
@@ -72,6 +77,21 @@ public class RetrofitHttp {
             totalLength += file.length();
         }
         dispose();
+        apiService.executeDownload("bytes=" + Long.toString(range) + totalLength, url)
+                .map(new Function<ResponseBody, DownloadInfo>() {
+                    @Override
+                    public DownloadInfo apply(ResponseBody responseBody) throws Exception {
+                        try {
+                            //写入文件
+                            FileUtil.writeCache(responseBody, new File(info.getSavePath()), info);
+                        } catch (IOException e) {
+                            Log.e("异常:", e.toString());
+                        }
+                        return info;
+                    }
+                });
+
+
         apiService.executeDownload("bytes=" + Long.toString(range) + totalLength, url)
                 .subscribe(new Observer<ResponseBody>() {
                     @Override

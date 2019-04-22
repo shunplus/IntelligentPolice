@@ -9,17 +9,18 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.content.FileProvider;
 import android.widget.RemoteViews;
 
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.config.Constants;
 import com.shgbit.bailiff.network.down.DownloadCallBack;
+import com.shgbit.bailiff.network.down.DownloadInfo;
+import com.shgbit.bailiff.network.down.DownloadManager;
 import com.shgbit.bailiff.network.down.RetrofitHttp;
+import com.shgbit.bailiff.rxbus.RxBus;
 import com.shgbit.bailiff.util.PLog;
 import com.shgbit.bailiff.util.SpUtils;
 
@@ -32,7 +33,7 @@ import java.io.File;
  * 功能描述 ：
  */
 
-public class DownloadIntentService extends IntentService {
+public class DownloadIntentService extends IntentService /*implements DownloadManager.ProgressListener*/ {
 
     private static final String TAG = "DownloadIntentService";
     private Notification notification;
@@ -42,9 +43,12 @@ public class DownloadIntentService extends IntentService {
     private static NotificationManager notificationManager;
     private Notification.Builder builder;
     private int progress;
+    DownloadManager downloadManager;
+    private File file;
 
     public DownloadIntentService() {
         super("InitializeService");
+        downloadManager = DownloadManager.getInstance();
     }
 
     @Override
@@ -55,14 +59,18 @@ public class DownloadIntentService extends IntentService {
         boolean isSendProgress = intent.getExtras().getBoolean("down_show", false);
         PLog.d(TAG, "download_url --" + downloadUrl);
         PLog.d(TAG, "download_file --" + mDownloadFileName);
-        final File file = new File(Constants.APP_ROOT_PATH + Constants.DOWNLOAD_DIR + mDownloadFileName);
+        file = new File(Constants.APP_ROOT_PATH + Constants.DOWNLOAD_DIR + mDownloadFileName);
         long range = 0;
         progress = 0;
         if (file.exists()) {
             range = SpUtils.getLong(downloadUrl, 0);
             progress = (int) (range * 100 / file.length());
             if (range == file.length()) {
-                installApp(file);
+                DownloadInfo info = new DownloadInfo();
+                info.setSavePath(file.getAbsolutePath());
+                info.setInsatall(true);
+                //发送安装消息到 MainActivity进行安装
+                RxBus.getInstance().post(info);
                 return;
             }
         }
@@ -73,9 +81,14 @@ public class DownloadIntentService extends IntentService {
         } else {
             showChannelNotificationBelowO();
         }
+//        downloadManager.setProgressListener(this);
+//        downloadManager.start(range, downloadUrl, file.getAbsolutePath());
         RetrofitHttp.getInstance().downloadFile(range, downloadUrl, mDownloadFileName, new DownloadCallBack() {
             @Override
             public void onProgress(int progress) {
+                DownloadInfo downloadInfo = new DownloadInfo();
+                downloadInfo.setProgress(progress);
+                RxBus.getInstance().post(downloadInfo);
                 PLog.d(TAG, "已下载 " + progress + " %");
                 builder.setProgress(100, progress, false);
                 notification = builder.build();
@@ -84,41 +97,31 @@ public class DownloadIntentService extends IntentService {
 
             @Override
             public void onCompleted() {
-                PLog.d(TAG, "下载完成");
+                PLog.d(TAG, "onCompleted");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     //关闭通知通道
                     notificationManager.deleteNotificationChannel("1");
                 }
                 notificationManager.cancel(notificationId);
-                installApp(file);
+                DownloadInfo downloadInfo = new DownloadInfo();
+                downloadInfo.setSavePath(file.getAbsolutePath());
+                downloadInfo.setInsatall(true);
+                RxBus.getInstance().post(downloadInfo);
             }
 
             @Override
             public void onError(String msg) {
                 notificationManager.cancel(notificationId);
-                PLog.d(TAG, "下载发生错误--" + msg);
+                PLog.d(TAG, "onError--" + msg);
             }
         });
     }
 
-    private void installApp(File apkFile) {
-        PLog.d(TAG, "installApp--");
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            Uri contentUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", apkFile);
-            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
-        } else {
-            intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
-        }
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        downloadManager.dispose();
         PLog.i(TAG, "onDestroy");
     }
 
@@ -189,5 +192,26 @@ public class DownloadIntentService extends IntentService {
         notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_ONGOING_EVENT;
         notificationManager.notify(notificationId, notification);
     }
+
+//    @Override
+//    public void progressChanged(long read, long contentLength, boolean done) {
+//        progress = (int) (read / contentLength) * 100;
+//    }
+//
+//    @Override
+//    public void onError(String errorMessage) {
+//        PLog.e(TAG, "errorMessage=" + errorMessage);
+//    }
+//
+//    @Override
+//    public void onComplete() {
+//        PLog.d(TAG, "下载完成");
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            //关闭通知通道
+//            notificationManager.deleteNotificationChannel("1");
+//        }
+//        notificationManager.cancel(notificationId);
+//        installApp(file);
+//    }
 
 }

@@ -27,12 +27,12 @@ import java.util.WeakHashMap;
 public abstract class BaseActivity<P extends BasePresenter> extends AppCompatActivity implements BaseView {
     private LoadDialog alertDialog;
     protected P mvpPresenter;
-    public Context context;
+    public Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
+        mContext = this;
         LawUtils.initSystemBar(false, this);
         ActivityManager.getAppInstance().addActivity(this);//将当前activity添加进入管理栈
         mvpPresenter = initPresenter();

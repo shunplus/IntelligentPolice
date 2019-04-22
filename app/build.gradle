@@ -15,20 +15,29 @@ android {
         minSdkVersion 16
         targetSdkVersion 28
         multiDexEnabled true
-        versionCode 1
+        versionCode 117
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.sign
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             signingConfig signingConfigs.sign
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            def today = new Date().format('yyyyMMdd_HHmm')
+            outputFileName = "zhzx" + defaultConfig.versionCode + ".apk"
+//            outputFileName = "zhzx_v" + defaultConfig.versionName + "_" + today + ".apk"
+//            outputFileName = "zhzx_ceshi.apk"
+
         }
     }
 }
