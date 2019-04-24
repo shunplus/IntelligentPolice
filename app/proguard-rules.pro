@@ -166,3 +166,10 @@
 
 -keep class com.github.mikephil.charting.** { *; }
 -dontwarn com.github.mikephil.charting.data.realm.**
+
+#baidu sdk
+-keep class com.baidu.** {*;}
+-keep class mapsdkvi.com.** {*;}
+#Bugly
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}

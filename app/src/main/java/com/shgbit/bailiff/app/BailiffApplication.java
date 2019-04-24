@@ -2,8 +2,11 @@ package com.shgbit.bailiff.app;
 
 import android.app.Application;
 
+import com.baidu.mapapi.CoordType;
+import com.baidu.mapapi.SDKInitializer;
 import com.shgbit.bailiff.config.ConstantsApi;
 import com.shgbit.bailiff.config.LawUtils;
+import com.shgbit.bailiff.mvp.location.LocationService;
 import com.shgbit.bailiff.network.interceptors.HeaderInterceptor;
 
 
@@ -13,7 +16,7 @@ import com.shgbit.bailiff.network.interceptors.HeaderInterceptor;
  */
 
 public class BailiffApplication extends Application {
-
+    public LocationService locationService;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -21,12 +24,11 @@ public class BailiffApplication extends Application {
                 .withApiHost(ConstantsApi.HOST)
                 .withInterceptor(new HeaderInterceptor())
                 .configure();
-        //初始化消息事件消息总线
-//        LiveEventBus.get()
-//                .config()
-//                .supportBroadcast(this)//支持广播
-//                .lifecycleObserverAlwaysActive(true);//配置LifecycleObserver（如Activity）
-        // 接收消息的模式：true：整个生命周期（从onCreate到onDestroy）都可以实时收到消息
-        // false：激活状态（Started）可以实时收到消息，非激活状态（Stoped）无法实时收到消息，需等到Activity重新变成激活状态，方可收到消息
+        locationService = new LocationService(getApplicationContext());
+        // baidu sdk init
+        SDKInitializer.initialize(this);
+        //自4.3.0起，百度地图SDK所有接口均支持百度坐标和国测局坐标，用此方法设置您使用的坐标类型.
+        //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
+        SDKInitializer.setCoordType(CoordType.BD09LL);
     }
 }

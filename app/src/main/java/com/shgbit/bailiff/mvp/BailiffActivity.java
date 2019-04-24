@@ -11,21 +11,27 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
 import com.shgbit.bailiff.bean.UpdateMessageBean;
 import com.shgbit.bailiff.config.LawUtils;
+import com.shgbit.bailiff.mvp.location.LocationUtils;
 import com.shgbit.bailiff.mvp.login.LoginActivity;
 import com.shgbit.bailiff.network.down.DownloadInfo;
 import com.shgbit.bailiff.rxbus.RxBus;
 import com.shgbit.bailiff.service.DownloadIntentService;
+import com.shgbit.bailiff.service.MainReportService;
 import com.shgbit.bailiff.util.MaterialDialogUtils;
 import com.shgbit.bailiff.util.PLog;
 import com.shgbit.bailiff.util.PermissionsUtils;
 import com.shgbit.bailiff.widget.TopViewLayout;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.io.File;
 
@@ -33,11 +39,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import io.reactivex.functions.Consumer;
 
 public class BailiffActivity extends BaseActivity<BailiffPresent> implements BailiffContact.OnMianView {
     @BindView(R.id.top_view)
     TopViewLayout topView;
+    @BindView(R.id.test)
+    TextView test;
     private Unbinder bind;
     private int versionCode;
     private MaterialDialog dialogProgress;
@@ -50,28 +57,51 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bind = ButterKnife.bind(this);
+        /**
+         * 增加Bugly 监控异常66666666
+         */
+        CrashReport.UserStrategy userStrategy = new CrashReport.UserStrategy(mContext);
+//        userStrategy.setAppVersion(Util.getVersionName(mContext));
+//        userStrategy.setAppChannel(ContextApplicationLike.getUserInfo(mContext).unit_code + ContextApplicationLike.getUserInfo(mContext).user_Name);
+        userStrategy.setAppPackageName(mContext.getPackageName());
+        CrashReport.initCrashReport(mContext, "bcfbe24843", true, userStrategy);
         initPermissons();
-        LawUtils.getHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                versionCode = LawUtils.getVersionCode(mContext);
-                mvpPresenter.getUplate(versionCode);
-            }
-
+        /**
+         * 请求版本更新
+         */
+        LawUtils.getHandler().postDelayed(() -> {
+            versionCode = LawUtils.getVersionCode(mContext);
+            mvpPresenter.getUplate(versionCode);
         }, 500);
-        RxBus.getInstance().toObservable(this, DownloadInfo.class).subscribe(new Consumer<DownloadInfo>() {
-            @Override
-            public void accept(DownloadInfo downloadInfo) throws Exception {
-                if (dialogProgress != null && !downloadInfo.isInsatall()) {
-                    dialogProgress.setProgress(downloadInfo.getProgress());
-                }
-                if (downloadInfo.isInsatall()) {
-                    PLog.i(TAG, "--install apk");
-                    info = downloadInfo;
-                    setInstallPermission();
-                    dialogProgress.dismiss();
-                }
 
+        /**
+         * 启动上报定位等 service
+         */
+        Intent intent = new Intent(mContext, MainReportService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+
+        RxBus.getInstance().toObservable(this, DownloadInfo.class).subscribe(downloadInfo -> {
+            if (dialogProgress != null && !downloadInfo.isInsatall()) {
+                dialogProgress.setProgress(downloadInfo.getProgress());
+            }
+            if (downloadInfo.isInsatall()) {
+                PLog.i(TAG, "--install apk");
+                info = downloadInfo;
+                setInstallPermission();
+                dialogProgress.dismiss();
+            }
+        });
+        LocationUtils.getInstace().registerListener(new BDAbstractLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+                if (bdLocation != null) {
+                    PLog.i(TAG, bdLocation.getAddress().address);
+                    LocationUtils.getInstace().unregisterListener();
+                }
             }
         });
     }
@@ -88,6 +118,9 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         if (bind != null) {
             bind.unbind();
         }
+        PLog.i(TAG, TAG + " onDestroy");
+//        locationService.unregisterListener(mListener); //注销掉监听
+//        locationService.stop(); //停止定位服务
     }
 
     @OnClick(R.id.test)
@@ -111,31 +144,28 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
             }
             //展示更新信息
             MaterialDialogUtils.showUpLoadDialog(mContext, "有新的版本，需要更新", content, "后台更新"
-                    , isUpdateStr, "立即更新", false, new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            switch (which) {
-                                //后台更新
-                                case NEUTRAL:
-                                    dialog.dismiss();
-                                    startUpload(arr[0], serVersionCode, false);
-                                    break;
-                                case NEGATIVE:
-                                    //暂不更新
-                                    dialog.dismiss();
-                                    break;
-                                case POSITIVE:
-                                    //立即更新
-                                    dialog.dismiss();
-                                    startUpload(arr[0], serVersionCode, true);
-                                    dialogProgress = MaterialDialogUtils.showDownProgress(mContext, new MaterialDialog.SingleButtonCallback() {
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                            dialogProgress.dismiss();
-                                        }
-                                    });
-                                    break;
-                            }
+                    , isUpdateStr, "立即更新", false, (dialog, which) -> {
+                        switch (which) {
+                            //后台更新
+                            case NEUTRAL:
+                                dialog.dismiss();
+                                startUpload(arr[0], serVersionCode, false);
+                                break;
+                            case NEGATIVE:
+                                //暂不更新
+                                dialog.dismiss();
+                                break;
+                            case POSITIVE:
+                                //立即更新
+                                dialog.dismiss();
+                                startUpload(arr[0], serVersionCode, true);
+                                dialogProgress = MaterialDialogUtils.showDownProgress(mContext, new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                        dialogProgress.dismiss();
+                                    }
+                                });
+                                break;
                         }
                     });
         }
@@ -163,7 +193,14 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
      * 动态获取权限
      */
     private void initPermissons() {
-        String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CALL_PHONE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.ACCESS_NETWORK_STATE
+        };
 //        PermissionsUtils.showSystemSetting = false;//是否支持显示系统设置权限设置窗口跳转
         //创建监听权限的接口对象
         PermissionsUtils.IPermissionsResult permissionsResult = new PermissionsUtils.IPermissionsResult() {
@@ -219,12 +256,9 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
                 MaterialDialogUtils.showMesage(mContext, "安装权限",
                         "安装应用需要打开未知来源权限，请去设置中开启权限",
                         false,
-                        new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    startInstallPermissionSettingActivity();
-                                }
+                        (dialog, which) -> {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                startInstallPermissionSettingActivity();
                             }
                         });
                 return;

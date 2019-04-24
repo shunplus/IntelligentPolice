@@ -1,7 +1,9 @@
 package com.shgbit.bailiff.mvp.login;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -15,6 +17,7 @@ import com.shgbit.bailiff.config.Constants;
 import com.shgbit.bailiff.mvp.BailiffActivity;
 import com.shgbit.bailiff.mvp.court.SelectCourtActivity;
 import com.shgbit.bailiff.util.PLog;
+import com.shgbit.bailiff.util.PermissionsUtils;
 
 import java.util.WeakHashMap;
 
@@ -68,11 +71,51 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         username.setText("zhouxiannong");
         password.setText("1");
         PLog.i("onCreate");
+        initPermissons();
+    }
+
+    /**
+     * 动态获取权限
+     */
+    private void initPermissons() {
+        String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CALL_PHONE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.ACCESS_NETWORK_STATE
+        };
+//        PermissionsUtils.showSystemSetting = false;//是否支持显示系统设置权限设置窗口跳转
+        //创建监听权限的接口对象
+        PermissionsUtils.IPermissionsResult permissionsResult = new PermissionsUtils.IPermissionsResult() {
+            @Override
+            public void passPermissons() {
+
+            }
+
+            @Override
+            public void forbitPermissons() {
+//                Intent intent = new Intent(mContext, LoginActivity.class);
+//                startActivity(intent);
+//                finish();
+
+            }
+        };
+        //这里的this不是上下文，是Activity对象！
+        PermissionsUtils.getInstance().chekPermissions(this, permissions, permissionsResult);
     }
 
     @Override
     public LoginPresenter initPresenter() {
         return new LoginPresenter(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionsUtils.getInstance().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+
     }
 
 
@@ -119,7 +162,6 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         if (bind != null) {
             bind.unbind();
         }
-//        LiveEventBus.get().with("login", String.class).removeObserver(observer);
     }
 
     @OnClick(R.id.get_fayuan)

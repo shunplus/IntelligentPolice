@@ -121,7 +121,9 @@ public class DownloadIntentService extends IntentService /*implements DownloadMa
     @Override
     public void onDestroy() {
         super.onDestroy();
-        downloadManager.dispose();
+        if (downloadManager != null) {
+            downloadManager.dispose();
+        }
         PLog.i(TAG, "onDestroy");
     }
 
