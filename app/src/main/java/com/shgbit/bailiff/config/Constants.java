@@ -30,5 +30,6 @@ public class Constants {
      */
     public final static String APP_ROOT_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + LawUtils.getApplicationContext().getPackageName();
     public final static String DOWNLOAD_DIR = "/downlaod/";
+    public final static String DB_NAME = "baliliff.db";
 
 }

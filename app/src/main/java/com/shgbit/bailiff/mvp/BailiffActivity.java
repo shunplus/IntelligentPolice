@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -18,9 +19,11 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.shgbit.bailiff.R;
+import com.shgbit.bailiff.app.BailiffApplication;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
 import com.shgbit.bailiff.bean.UpdateMessageBean;
 import com.shgbit.bailiff.config.LawUtils;
+import com.shgbit.bailiff.db.FileBean;
 import com.shgbit.bailiff.mvp.location.LocationUtils;
 import com.shgbit.bailiff.mvp.login.LoginActivity;
 import com.shgbit.bailiff.network.down.DownloadInfo;
@@ -83,7 +86,9 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         } else {
             startService(intent);
         }
-
+        /**
+         * 接受app下载进度的消息
+         */
         RxBus.getInstance().toObservable(this, DownloadInfo.class).subscribe(downloadInfo -> {
             if (dialogProgress != null && !downloadInfo.isInsatall()) {
                 dialogProgress.setProgress(downloadInfo.getProgress());
@@ -95,6 +100,9 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
                 dialogProgress.dismiss();
             }
         });
+        /**
+         * 获取定位demo
+         */
         LocationUtils.getInstace().registerListener(new BDAbstractLocationListener() {
             @Override
             public void onReceiveLocation(BDLocation bdLocation) {
@@ -104,6 +112,26 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
                 }
             }
         });
+
+        /**
+         * 使用数据库demo
+         */
+        try {
+            for (int i = 0; i < 10; i++) {
+                FileBean fileBean = new FileBean(null, "" + i + 2322);
+                BailiffApplication.getmDaoSession().getFileBeanDao().save(fileBean);
+                PLog.i(TAG, BailiffApplication.getmDaoSession().getFileBeanDao().loadAll().get(i).getName());
+            }
+            //获取第index=9的值
+            PLog.i(TAG, String.valueOf(BailiffApplication.getmDaoSession().getFileBeanDao().loadAll().size()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            PLog.e(TAG, Log.getStackTraceString(e));
+        }
+
+
+
     }
 
     @Override
