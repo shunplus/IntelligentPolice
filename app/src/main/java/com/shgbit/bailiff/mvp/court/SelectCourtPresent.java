@@ -6,6 +6,7 @@ import com.shgbit.bailiff.common.ErrorMessage;
 import com.shgbit.bailiff.config.ConstantsApi;
 import com.shgbit.bailiff.mvp.court.casetree.bean.NewCourtBean;
 import com.shgbit.bailiff.mvp.court.casetree.bean.TreeNode;
+import com.shgbit.bailiff.util.PLog;
 
 import java.util.WeakHashMap;
 
@@ -26,6 +27,7 @@ public class SelectCourtPresent extends BasePresenterImpl<CourtContact.OnCoutrVi
         if (view != null) {
             view.showLoadingDialog();
         }
+        PLog.d("manny","getNodeCourList");
         WeakHashMap<String, Object> parms = new WeakHashMap<>();
         parms.put("id", node);
         post(ConstantsApi.GET_COURTLIST, parms, NewCourtBean.class, new BaseBeanObserver<NewCourtBean>() {
@@ -50,10 +52,6 @@ public class SelectCourtPresent extends BasePresenterImpl<CourtContact.OnCoutrVi
                 }
             }
 
-            @Override
-            public void onComplete() {
-
-            }
         });
 
     }

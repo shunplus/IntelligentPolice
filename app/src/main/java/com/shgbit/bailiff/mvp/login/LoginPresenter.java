@@ -47,11 +47,6 @@ public class LoginPresenter extends BasePresenterImpl<LoginContact.OnLoginView> 
                 view.dismissLoadingDialog();
                 view.onPasswordError(error);
             }
-
-            @Override
-            public void onComplete() {
-
-            }
         });
     }
 

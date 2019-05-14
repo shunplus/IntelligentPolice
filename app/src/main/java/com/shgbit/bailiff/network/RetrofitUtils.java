@@ -141,7 +141,7 @@ public class RetrofitUtils {
 
                     @Override
                     public void onComplete() {
-                        baseBeanObserver.onComplete();
+//                        baseBeanObserver.onComplete();
                     }
                 });
     }

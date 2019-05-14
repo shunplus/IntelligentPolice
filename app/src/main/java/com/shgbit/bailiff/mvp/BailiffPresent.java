@@ -53,11 +53,6 @@ public class BailiffPresent extends BasePresenterImpl<BailiffContact.OnMianView>
                     view.handleError(error);
                 }
             }
-
-            @Override
-            public void onComplete() {
-
-            }
         });
     }
 }

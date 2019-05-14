@@ -117,8 +117,8 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
          * 使用数据库demo
          */
         try {
-            for (int i = 0; i < 10; i++) {
-                FileBean fileBean = new FileBean(null, "" + i + 2322);
+            for (int i = 0; i < 500; i++) {
+                FileBean fileBean = new FileBean(null, "" + i);
                 BailiffApplication.getmDaoSession().getFileBeanDao().save(fileBean);
                 PLog.i(TAG, BailiffApplication.getmDaoSession().getFileBeanDao().loadAll().get(i).getName());
             }
@@ -129,9 +129,6 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
             e.printStackTrace();
             PLog.e(TAG, Log.getStackTraceString(e));
         }
-
-
-
     }
 
     @Override

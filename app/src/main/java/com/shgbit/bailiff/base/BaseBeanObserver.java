@@ -17,5 +17,5 @@ public interface BaseBeanObserver<T> {
 
     void onError(ErrorMessage error);
 
-    void onComplete();
+//    void onComplete();
 }
