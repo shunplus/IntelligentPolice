@@ -12,6 +12,7 @@ import com.shgbit.bailiff.db.DaoMaster;
 import com.shgbit.bailiff.db.DaoSession;
 import com.shgbit.bailiff.mvp.location.LocationService;
 import com.shgbit.bailiff.network.interceptors.HeaderInterceptor;
+import com.tencent.mmkv.MMKV;
 
 
 /**
@@ -32,6 +33,8 @@ public class BailiffApplication extends Application {
                 .withApiHost(ConstantsApi.HOST)
                 .withInterceptor(new HeaderInterceptor())
                 .configure();
+        //初始化MMKV 数据存储
+        MMKV.initialize(this);
         locationService = new LocationService(getApplicationContext());
         // baidu sdk init
         SDKInitializer.initialize(this);

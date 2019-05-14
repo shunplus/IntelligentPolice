@@ -108,5 +108,7 @@ dependencies {
     implementation 'com.tencent.bugly:nativecrashreport:3.6.0'
     //greendao 数据库
     implementation 'org.greenrobot:greendao:3.2.2'
+    //greendao mmkv
+    implementation 'com.tencent:mmkv:1.0.15'
 
 }

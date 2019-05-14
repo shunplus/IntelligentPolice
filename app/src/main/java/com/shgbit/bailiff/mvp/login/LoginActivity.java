@@ -18,6 +18,7 @@ import com.shgbit.bailiff.mvp.BailiffActivity;
 import com.shgbit.bailiff.mvp.court.SelectCourtActivity;
 import com.shgbit.bailiff.util.PLog;
 import com.shgbit.bailiff.util.PermissionsUtils;
+import com.tencent.mmkv.MMKV;
 
 import java.util.WeakHashMap;
 
@@ -71,6 +72,10 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         username.setText("zhouxiannong");
         password.setText("1");
         PLog.i("onCreate");
+        //微信MMKV使用方式
+        MMKV mmkv=MMKV.defaultMMKV();
+        mmkv.putString("mmkv","dssds");
+        PLog.d(mmkv.getString("mmkv","null"));
         initPermissons();
     }
 
