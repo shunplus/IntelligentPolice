@@ -12,6 +12,7 @@ import com.shgbit.bailiff.db.DaoMaster;
 import com.shgbit.bailiff.db.DaoSession;
 import com.shgbit.bailiff.mvp.location.LocationService;
 import com.shgbit.bailiff.network.interceptors.HeaderInterceptor;
+import com.shgbit.bailiff.util.PLog;
 import com.tencent.mmkv.MMKV;
 
 
@@ -24,17 +25,18 @@ public class BailiffApplication extends Application {
     public LocationService locationService;
     private static BailiffApplication mApp;
     private static DaoSession mDaoSession;
+    private static final String TAG = "BailiffApplication";
 
     @Override
     public void onCreate() {
         super.onCreate();
         mApp = this;
+        //初始化MMKV 数据存储
+        MMKV.initialize(mApp);
         LawUtils.init(mApp)
                 .withApiHost(ConstantsApi.HOST)
                 .withInterceptor(new HeaderInterceptor())
                 .configure();
-        //初始化MMKV 数据存储
-        MMKV.initialize(this);
         locationService = new LocationService(getApplicationContext());
         // baidu sdk init
         SDKInitializer.initialize(this);
@@ -42,6 +44,7 @@ public class BailiffApplication extends Application {
         //包括BD09LL和GCJ02两种坐标，默认是BD09LL坐标。
         SDKInitializer.setCoordType(CoordType.BD09LL);
         initGreenDao();
+        PLog.d(TAG+"  onCreate");
     }
 
     private void initGreenDao() {

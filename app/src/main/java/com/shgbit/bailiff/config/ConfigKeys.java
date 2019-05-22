@@ -13,5 +13,6 @@ public enum ConfigKeys {
     HANDLER,
     MAIN_THREADID,
     IS_LPGIN,
-    THREAD
+    THREAD,
+    MKKV
 }

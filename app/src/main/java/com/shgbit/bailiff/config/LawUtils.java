@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.common.ThreadPoolManager;
 import com.shgbit.bailiff.util.PLog;
+import com.tencent.mmkv.MMKV;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -282,5 +283,13 @@ public final class LawUtils {
             e.printStackTrace();
         }
         return pi.versionCode;
+    }
+
+    /**
+     * 获取全局MMKV实例
+     * @return
+     */
+    public static MMKV getMMKV(){
+        return getConfiguration(ConfigKeys.MKKV);
     }
 }

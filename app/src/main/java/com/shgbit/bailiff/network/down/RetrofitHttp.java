@@ -77,22 +77,7 @@ public class RetrofitHttp {
             totalLength += file.length();
         }
         dispose();
-        apiService.executeDownload("bytes=" + Long.toString(range) + totalLength, url)
-                .map(new Function<ResponseBody, DownloadInfo>() {
-                    @Override
-                    public DownloadInfo apply(ResponseBody responseBody) throws Exception {
-                        try {
-                            //写入文件
-                            FileUtil.writeCache(responseBody, new File(info.getSavePath()), info);
-                        } catch (IOException e) {
-                            Log.e("异常:", e.toString());
-                        }
-                        return info;
-                    }
-                });
-
-
-        apiService.executeDownload("bytes=" + Long.toString(range) + totalLength, url)
+        apiService.executeDownload("bytes=" + range + totalLength, url)
                 .subscribe(new Observer<ResponseBody>() {
                     @Override
                     public void onSubscribe(Disposable d) {

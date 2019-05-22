@@ -3,6 +3,7 @@ package com.shgbit.bailiff.config;
 import android.os.Handler;
 
 import com.shgbit.bailiff.common.ThreadPoolManager;
+import com.tencent.mmkv.MMKV;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public final class Configurator {
     //    private static final ArrayList<IconFontDescriptor> ICONS = new ArrayList<>();
     private static final ArrayList<Interceptor> INTERCEPTORS = new ArrayList<>();
     private static final ThreadPoolManager mThreadPoolManager = ThreadPoolManager.getInstance();
+    private static final MMKV mMMKV=MMKV.defaultMMKV();
 
     private Configurator() {
         LATTE_CONFIGS.put(ConfigKeys.CONFIG_READY, false);
@@ -32,6 +34,8 @@ public final class Configurator {
         LATTE_CONFIGS.put(ConfigKeys.CONFIG_READY, true);
         LATTE_CONFIGS.put(ConfigKeys.MAIN_THREADID, android.os.Process.myTid());
         LATTE_CONFIGS.put(ConfigKeys.THREAD, mThreadPoolManager);
+        LATTE_CONFIGS.put(ConfigKeys.MKKV, mMMKV);
+
     }
 
     static Configurator getInstance() {

@@ -24,7 +24,6 @@ import com.shgbit.bailiff.mvp.court.casetree.bean.LayoutItem;
 import com.shgbit.bailiff.mvp.court.casetree.bean.NewCourtBean;
 import com.shgbit.bailiff.mvp.court.casetree.bean.TreeNode;
 import com.shgbit.bailiff.mvp.court.casetree.bean.TreeViewBinder;
-import com.shgbit.bailiff.rxbus.RxBus;
 import com.shgbit.bailiff.widget.TopViewLayout;
 
 import java.util.ArrayList;
@@ -79,12 +78,12 @@ public class SelectCourtActivity extends BaseActivity<SelectCourtPresent> implem
         initAdapter();
         //获取最高院
         mvpPresenter.getNodeCourList("0", null, 0);
-        RxBus.getInstance().toObservable(this, String.class).subscribe(new Consumer<String>() {
-            @Override
-            public void accept(String s) throws Exception {
-                showMessage(s);
-            }
-        });
+//        RxBus.getInstance().toObservable(this, String.class).subscribe(new Consumer<String>() {
+//            @Override
+//            public void accept(String s) throws Exception {
+//                showMessage(s);
+//            }
+//        });
     }
 
     private void initAdapter() {

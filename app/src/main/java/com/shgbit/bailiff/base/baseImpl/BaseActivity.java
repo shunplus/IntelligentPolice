@@ -22,6 +22,8 @@ import java.util.WeakHashMap;
 
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
 /**
  * @author:xushun on 2018/7/8
@@ -31,7 +33,7 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
     private LoadDialog alertDialog;
     protected P mvpPresenter;
     public Context mContext;
-
+    public CompositeDisposable mCompositeDisposable;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +41,7 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
         LawUtils.initSystemBar(false, this);
         ActivityManager.getAppInstance().addActivity(this);//将当前activity添加进入管理栈
         mvpPresenter = initPresenter();
+        mCompositeDisposable = new CompositeDisposable();
     }
 
     @Override
@@ -58,6 +61,26 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
      * @return 相应的presenter
      */
     public abstract P initPresenter();
+
+    /**
+     * 添加订阅
+     */
+    public void addDisposable(Disposable mDisposable) {
+        if (mCompositeDisposable == null) {
+            mCompositeDisposable = new CompositeDisposable();
+        }
+        mCompositeDisposable.add(mDisposable);
+    }
+
+    /**
+     * 取消所有订阅
+     */
+    public void clearDisposable() {
+        if (mCompositeDisposable != null) {
+            mCompositeDisposable.clear();
+        }
+    }
+
 
     @Override
     public void showMessage(String message) {

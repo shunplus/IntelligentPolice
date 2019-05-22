@@ -2,6 +2,7 @@ package com.shgbit.bailiff.mvp;
 
 
 import android.Manifest;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -27,7 +28,6 @@ import com.shgbit.bailiff.db.FileBean;
 import com.shgbit.bailiff.mvp.location.LocationUtils;
 import com.shgbit.bailiff.mvp.login.LoginActivity;
 import com.shgbit.bailiff.network.down.DownloadInfo;
-import com.shgbit.bailiff.rxbus.RxBus;
 import com.shgbit.bailiff.service.DownloadIntentService;
 import com.shgbit.bailiff.service.MainReportService;
 import com.shgbit.bailiff.util.MaterialDialogUtils;
@@ -35,6 +35,10 @@ import com.shgbit.bailiff.util.PLog;
 import com.shgbit.bailiff.util.PermissionsUtils;
 import com.shgbit.bailiff.widget.TopViewLayout;
 import com.tencent.bugly.crashreport.CrashReport;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
@@ -52,7 +56,7 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
     private int versionCode;
     private MaterialDialog dialogProgress;
     private final static int INSTALL_PERMISS_CODE = 1008;
-    private DownloadInfo info;
+    private DownloadInfo downloadInfo;
     private static final String TAG = "BailiffActivity";
 
     @Override
@@ -60,6 +64,7 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bind = ButterKnife.bind(this);
+        EventBus.getDefault().register(this);
         /**
          * 增加Bugly 监控异常66666666
          */
@@ -86,20 +91,7 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         } else {
             startService(intent);
         }
-        /**
-         * 接受app下载进度的消息
-         */
-        RxBus.getInstance().toObservable(this, DownloadInfo.class).subscribe(downloadInfo -> {
-            if (dialogProgress != null && !downloadInfo.isInsatall()) {
-                dialogProgress.setProgress(downloadInfo.getProgress());
-            }
-            if (downloadInfo.isInsatall()) {
-                PLog.i(TAG, "--install apk");
-                info = downloadInfo;
-                setInstallPermission();
-                dialogProgress.dismiss();
-            }
-        });
+
         /**
          * 获取定位demo
          */
@@ -129,6 +121,9 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
             e.printStackTrace();
             PLog.e(TAG, Log.getStackTraceString(e));
         }
+
+        LawUtils.getMMKV().putString("wrw", "23232323");
+        PLog.i(  LawUtils.getMMKV().getString("wrw", "null"));
     }
 
     @Override
@@ -139,11 +134,11 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        RxBus.getInstance().removeAllStickyEvents();
         if (bind != null) {
             bind.unbind();
         }
         PLog.i(TAG, TAG + " onDestroy");
+        EventBus.getDefault().unregister(this);
 //        locationService.unregisterListener(mListener); //注销掉监听
 //        locationService.stop(); //停止定位服务
     }
@@ -207,8 +202,8 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == INSTALL_PERMISS_CODE) {
-            if (info != null) {
-                File file = new File(info.getSavePath());
+            if (downloadInfo != null) {
+                File file = new File(downloadInfo.getSavePath());
                 installApk(file);
             }
         }
@@ -289,8 +284,8 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
                 return;
             }
         }
-        if (info != null) {
-            File file = new File(info.getSavePath());
+        if (downloadInfo != null) {
+            File file = new File(downloadInfo.getSavePath());
             installApk(file);
         }
     }
@@ -303,7 +298,10 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         startActivityForResult(intent, INSTALL_PERMISS_CODE);
     }
 
-    //安装应用
+    /**
+     * 安装应用
+     * @param apk
+     */
     private void installApk(File apk) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -315,5 +313,22 @@ public class BailiffActivity extends BaseActivity<BailiffPresent> implements Bai
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(intent);
+    }
+
+    /**
+     * 接受下载进度及安装的消息
+     * @param downloadInfo
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiveDownloadInfo(DownloadInfo downloadInfo){
+        if (dialogProgress != null && !downloadInfo.isInsatall()) {
+            dialogProgress.setProgress(downloadInfo.getProgress());
+        }
+        if (downloadInfo.isInsatall()) {
+            PLog.i(TAG, "--install apk");
+            this.downloadInfo = downloadInfo;
+            setInstallPermission();
+            dialogProgress.dismiss();
+        }
     }
 }

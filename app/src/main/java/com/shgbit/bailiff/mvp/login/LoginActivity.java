@@ -10,10 +10,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jakewharton.rxbinding2.view.RxView;
 import com.shgbit.bailiff.R;
 import com.shgbit.bailiff.base.baseImpl.BaseActivity;
 import com.shgbit.bailiff.common.ErrorMessage;
 import com.shgbit.bailiff.config.Constants;
+import com.shgbit.bailiff.config.LawUtils;
 import com.shgbit.bailiff.mvp.BailiffActivity;
 import com.shgbit.bailiff.mvp.court.SelectCourtActivity;
 import com.shgbit.bailiff.util.PLog;
@@ -21,11 +23,13 @@ import com.shgbit.bailiff.util.PermissionsUtils;
 import com.tencent.mmkv.MMKV;
 
 import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.reactivex.functions.Consumer;
 
 
 /**
@@ -44,8 +48,6 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     EditText username;
     @BindView(R.id.password)
     EditText password;
-    @BindView(R.id.login_btn1)
-    TextView loginBtn1;
     @BindView(R.id.tv_video)
     TextView tvVideo;
     @BindView(R.id.tv_devices)
@@ -57,12 +59,6 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     @BindView(R.id.login_btn)
     TextView loginBtn;
     private Unbinder bind;
-//    private Observer<String> observer = new Observer<String>() {
-//        @Override
-//        public void onChanged(String s) {
-//
-//        }
-//    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +67,15 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         bind = ButterKnife.bind(this);
         username.setText("zhouxiannong");
         password.setText("1");
-        PLog.i("onCreate");
-        //微信MMKV使用方式
-        MMKV mmkv=MMKV.defaultMMKV();
-        mmkv.putString("mmkv","dssds");
-        PLog.d(mmkv.getString("mmkv","null"));
-        initPermissons();
+        PLog.i(TAG+"  onCreate");
+        LawUtils.getMMKV().putString(Constants.USER_CODE, "getMMKV1111111111");
+        PLog.i(  LawUtils.getMMKV().getString(Constants.USER_CODE, "null"));
+        /**
+         * 点击登录  防抖处理
+         */
+        addDisposable(RxView.clicks(loginBtn)
+                .throttleFirst(3, TimeUnit.SECONDS)
+                .subscribe(o -> onLogin()));
     }
 
     /**
@@ -125,9 +124,9 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
 
 
     /**
-     * 点击登录
+     * 处理登录操作
+     *
      */
-    @OnClick(R.id.login_btn)
     public void onLogin() {
         final WeakHashMap<String, Object> params = new WeakHashMap<>();
         userCode = "zhouxiannong";
@@ -139,7 +138,6 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         params.put("device", device);
         params.put("upw", upw);
         mvpPresenter.getData(params);
-
         Intent intent = new Intent(this, BailiffActivity.class);
         startActivity(intent);
     }
@@ -148,6 +146,9 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     public void onSucess(String data) {
         //TODO: save passWord； start  BailiffActivity
         showMessage(data);
+
+        //使用MKKV保存数据
+//        LawUtils.getMMKV().putString(Constants.USER_CODE, userCode);
 //        Toast.makeText(context, "登录成功", Toast.LENGTH_SHORT).show();
 //        LawUtils.getPreference().saveString(Constants.USER_CODE, userCode);
 //        LawUtils.getPreference().saveString(Constants.CROP, crop);
@@ -187,5 +188,11 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                 }
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initPermissons();
     }
 }
